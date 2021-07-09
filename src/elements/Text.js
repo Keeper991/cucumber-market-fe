@@ -13,7 +13,7 @@ const Text = (props) => {
   }
 
   return(
-    <P {...styles}></P>
+    <P {...styles}>{children}</P>
   );
 }
 
