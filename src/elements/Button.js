@@ -30,7 +30,7 @@ const Button = (props) => {
 };
 
 Button.defaultProps = {
-  _onClick: () => {},
+  _onClick: () => { },
   circle: false,
   margin: "0px",
   width: "100px",

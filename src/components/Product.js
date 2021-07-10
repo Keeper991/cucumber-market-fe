@@ -12,24 +12,41 @@ const Product = (props) => {
   const dispatch = useDispatch();
 
   return (
-      <Wrapper onClick={props.onClick}>
+    <Wrapper onClick={props.onClick}>
+      <div>
         <Image shape="square" src={props.src}></Image>
-        <Text >{props.productName}</Text>
-        <Text>{props.productPrice}</Text>
-
-        <HeartBtn
-          _onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dispatch(productActions.likeToggle(props.id, props.user.id));
-          }}
-          is_like={props.is_like}
-        ></HeartBtn>
-      </Wrapper>
+      </div>
+      <Box>
+        <Text
+          size="15px"
+          margin="8px"
+        >{props.productName}</Text>
+        <Text
+          size="15px"
+          bold
+          margin="8px"
+        >{props.productPrice}</Text>
+      </Box>
+      <HeartBtn
+        _onClick={(e) => {
+          dispatch(productActions.getLikeToggleAPI());
+        }}
+        is_like={props.is_like}
+      ></HeartBtn>
+    </Wrapper>
   );
 }
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+display: flex;
+justify-content: center;
+align-items: center;
+padding: "20px";
+`;
+
+const Box = styled.div`
+  
+`;
 
 
 export default Product;

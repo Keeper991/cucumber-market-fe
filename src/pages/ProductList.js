@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import styled from "styled-components";
 
 import Product from "../components/Product";
 
@@ -26,13 +27,11 @@ const ProductList = (props) => {
         <Product {...product} key={product.id}
           onClick={() => {
             console.log('포스트 클릭했어');
-            history.push(`/product/${product.id}`);
+            // history.push(`/product/${product.id}`);
           }} />
       );
     })
   );
-
-
 }
 
 export default ProductList;

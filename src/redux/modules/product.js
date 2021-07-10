@@ -5,14 +5,13 @@ import axios from "axios";
 
 // Action
 const PUT_PRODUCT = "PUT_PRODUCT"; // 서버에 가져온 리스트를 리덕스에 넣어주는 액션
-const ADD_PRODUCT = "ADD_PRODUCT"; // 리덕스에 추가해주는 액션
+const ADD_PRODUCT = "ADD_PRODUCT"; // product를 리덕스에 추가해주는 액션
 const LIKE_TOGGLE = "LIKE_TOGGLE"; // 토글 버튼 누르면 product_id를 user_id에 저장
 
 // ActionCreator
 const putProduct = createAction(PUT_PRODUCT, (product_list) => ({ product_list }));
 const addProduct = createAction(ADD_PRODUCT, (product) => ({ product }));
-const likeToggle = createAction(LIKE_TOGGLE, (product_id, user_id) => ({ product_id, user_id }));
-
+const likeToggle = createAction(LIKE_TOGGLE, (id, is_like) => ({ id, is_like }));
 
 // 서버에서 프로덕트 데이터 가져오는 함수
 const getProductAPI = () => {
@@ -25,6 +24,35 @@ const getProductAPI = () => {
     });
   }
 }
+
+// 서버에서 is_like 정보 가져오는 함수
+const getLikeToggleAPI = () => {
+  return function (dispatch, getState, { history }) {
+    const p_index = getState().product.list.findIndex((p) => (p.id))
+    const _is_like = getState().product.list[p_index].is_like
+
+    if (_is_like) {
+      axios.patch("http://localhost:3003/product/1", { is_like: false }).then((datalist) => {
+        const data_list = datalist.data;
+        dispatch(likeToggle(data_list.id, data_list.is_like))
+        // user에 product_id 저장
+      })
+    } else {
+      axios.patch("http://localhost:3003/product/1", { is_like: true }).then((datalist) => {
+        const data_list = datalist.data;
+        dispatch(likeToggle(data_list.id, data_list.is_like))
+        // user에 product_id 삭제
+      })
+    }
+  }
+}
+
+// 가져온 is_like 정보를 리덕스에 넣어주는 함수
+// const putLikeToggle = () => {
+//   return function (dispatch, getState, { history }) {
+// 해당 product_id가 is_like가 true라면, user 정보에 product_id를 넣는다. 
+
+//   }
 
 // 서버에서 내가 좋아요 누른 프로덕트 데이터 가져오는 함수
 // const getLikeProductAPI = () => {
@@ -96,7 +124,17 @@ const getProductAPI = () => {
 
 // initailState
 const initialState = {
-  list: [],
+  list: [
+    {
+      id: 1,
+      image_url: "https://mean0images.s3.ap-northeast-2.amazonaws.com/4.jpeg",
+      productName: "덩크 플립 240 판매합니다",
+      productPrice: "100,000",
+      insertedAt: "YYYY-MM-DD hh:mm:ss",
+      category: "패션",
+      is_like: false
+    }
+  ],
 }
 
 const initialProduct = {
@@ -112,6 +150,7 @@ const initialProduct = {
   is_like: false,
   category: "",
 }
+
 
 // Reducer
 export default handleActions(
@@ -132,6 +171,11 @@ export default handleActions(
     [ADD_PRODUCT]: (state, action) => produce(state, (draft) => {
       draft.list.unshift(action.payload.product);
     }),
+
+    [LIKE_TOGGLE]: (state, action) => produce(state, (draft) => {
+      const index = draft.list.findIndex((p) => (p.id), action.payload.id)
+      draft.list[index].is_like = action.payload.is_like;
+    })
   }, initialState
 );
 
@@ -142,7 +186,7 @@ const actionCreators = {
   addProduct,
   likeToggle,
   getProductAPI,
-  // getLikeProductAPI,
+  getLikeToggleAPI,
 }
 
 export { actionCreators };

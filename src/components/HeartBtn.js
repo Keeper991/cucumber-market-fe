@@ -1,23 +1,25 @@
 import React from "react";
 import styled from "styled-components";
 
-import heart_line from "../shared/heart_line.svg";
-import heart_solid from "../shared/heart_solid.svg";
+import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 
 
 const HeartBtn = (props) => {
-  const icon_url = props.is_like? heart_solid : heart_line;
-  
-  return(
+  console.log(typeof props.is_like, props.is_like);
+
+  return (
     <React.Fragment>
-      <Heart onClick={props._onClick} icon_url={icon_url}></Heart>
+      <Heart onClick={props._onClick}>
+        {props.is_like ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+      </Heart>
     </React.Fragment>
   );
 }
 
 const Heart = styled.div`
-  width: 30px;
-  height: 30px;
+  width: 14px;
+  height: 14px;
   display: flex;
   background: url(${(props) => props.icon_url});
   background-size: cover;
