@@ -2,64 +2,66 @@ import styled from "styled-components";
 import React from "react";
 
 const Image = (props) => {
-  const { shape, width, height, src, size, _onClick } = props;
+  const { shape, width, height, src, _onClick } = props;
 
   const styles = {
     src: src,
-    size: size,
     width: width,
     height: height,
   };
 
   if (shape === "circle") {
+    return <ImageCircle {...styles} onClick={_onClick}></ImageCircle>;
+  }
+
+  if (shape === "rectangle") {
     return (
-      <ImageCircle {...styles} onClick={_onClick}></ImageCircle>
+      <AspectOutter {...styles}>
+        <AspectInner {...styles} onClick={_onClick}></AspectInner>
+      </AspectOutter>
     );
   }
 
-  if (shape === "squre") {
-    return (
-      <ImageSqure {...styles} onClick={_onClick}></ImageSqure>
-    );
-  }
-
-  return (
-    <ImageOrigin {...styles} onClick={_onClick}></ImageOrigin>
-  );
-}
+  return <ImageOrigin {...styles} onClick={_onClick}></ImageOrigin>;
+};
 
 Image.defaultProps = {
-  _onClick: () => { },
-  shape: "circle",
+  _onClick: () => {},
+  shape: "",
   src: "https://mean0images.s3.ap-northeast-2.amazonaws.com/4.jpeg",
-  width: "100px",
-  height: "100px",
+  width: "6em",
+  height: "6em",
 };
 
 const ImageCircle = styled.div`
   width: ${(props) => props.width};
   height: ${(props) => props.height};
-  border-radius: "50px";
-  background-image: url("${(props) => props.src}");
+  border-radius: 50%;
+  background-image: url(${(props) => props.src});
   background-size: cover;
+  background-position: center;
   margin: ${(props) => props.margin};
 `;
 
-const ImageSqure = styled.div`
+const AspectOutter = styled.div`
   width: ${(props) => props.width};
-  height: ${(props) => props.height};
-  border-radius: "5px";
-  background-image: url("${(props) => props.src}");
-  background-size: cover;
   margin: ${(props) => props.margin};
+`;
+
+const AspectInner = styled.div`
+  padding-top: 75%;
+  background-image: url(${(props) => props.src});
+  background-size: cover;
+  background-position: center;
 `;
 
 const ImageOrigin = styled.div`
-  background-image: url("${(props) => props.src}");
-  background-size: cover;
   width: ${(props) => props.width};
   height: ${(props) => props.height};
+  background-image: url(${(props) => props.src});
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
 `;
 
 export default Image;
-
