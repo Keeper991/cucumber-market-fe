@@ -1,25 +1,18 @@
-import { useState } from "react";
+import axios from "axios";
 
-import Input from "../elements/Input";
+import ProductList from "../pages/ProductList";
+// import Product from "../components/Product";
 
 const App = () => {
-  const [value, setValue] = useState("");
+  
   return (
     <div className="App">
-      <Input
-        value={value}
-        placeholder="오이오이"
-        onChange={(e) => setValue(e.target.value)}
-      />
-      <Input
-        multiLine
-        placeholder="멀티멀티"
-        onChange={(e) => setValue(e.target.value)}
-      >
-        {value}
-      </Input>
+
+    <ProductList />
+
     </div>
   );
 };
+
 
 export default App;
