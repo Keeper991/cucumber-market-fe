@@ -1,73 +1,67 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
+import Color from "../shared/Color";
 
 const Button = (props) => {
-  const { circle, rectangle, full, half, content, text, bgColor, color, margin, padding, _onClick } = props;
+  const { bgColor, color, margin, padding, width, circle, children, _onClick } =
+    props;
 
   const styles = {
     bgColor: bgColor,
     color: color,
     margin: margin,
     padding: padding,
-    full: full,
-    half: half,
-    content: content,
-    text: text,
-  }
+    width: width,
+  };
 
   if (circle) {
     return (
-      <CircleBtn {...styles} onClick={_onClick}></CircleBtn>
-    );
-  }
-
-  if (rectangle) {
-    return (
-      <RectangleBtn {...styles} onClick={_onClick}></RectangleBtn>
+      <CircleBtn {...styles} onClick={_onClick}>
+        {children}
+      </CircleBtn>
     );
   }
 
   return (
-    <BasicBtn {...styles} onClick={_onClick}></BasicBtn>
+    <BasicBtn {...styles} onClick={_onClick}>
+      {children}
+    </BasicBtn>
   );
-
-}
+};
 
 Button.defaultProps = {
-  _onClick: () => { },
+  _onClick: () => {},
   circle: false,
-  rectangle: false,
-  margin: '0px',
+  margin: "0px",
   width: "100px",
-  padding: "0px",
-  full: false,
-  half: false,
+  padding: "1em",
+  color: "black",
+  bgColor: Color.gray,
 };
 
 const CircleBtn = styled.button`
-  width: ${(props) => props.width};
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: ${(props) => props.padding};
-  margin: ${(props) => props.padding};
-  border-radius: '50px';
-  color: ${(props) => props.padding};
+  margin: ${(props) => props.margin};
+  color: ${(props) => props.color};
   border: none;
-  box-sizing: border-box;
-`;
-
-const RectangleBtn = styled.button`
-  width: ${(props) => props.width};
-  padding: ${(props) => props.padding};
-  margin: ${(props) => props.padding};
-  border: none;
-  box-sizing: border-box;
+  background-color: ${({ bgColor }) => bgColor};
+  border-radius: 50%;
 `;
 
 const BasicBtn = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: ${(props) => props.width};
   padding: ${(props) => props.padding};
-  margin: ${(props) => props.padding};
+  margin: ${(props) => props.margin};
+  color: ${(props) => props.color};
   border: none;
-  box-sizing: border-box;
+  background-color: ${({ bgColor }) => bgColor};
+  border-radius: 10px;
 `;
 
 export default Button;
