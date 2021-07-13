@@ -77,13 +77,17 @@ const Container = styled.section`
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    opacity: 0.5;
+    opacity: 0;
+    transition: opacity 0.2s linear;
   }
   & > button:first-of-type {
     left: 0;
   }
   & > button:last-of-type {
     right: 0;
+  }
+  &:hover > button {
+    opacity: 0.5;
   }
 
   @media only screen and (min-width: 800px) {

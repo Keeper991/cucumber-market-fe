@@ -8,7 +8,7 @@ import { actionCreators as productActions } from "../redux/modules/product";
 import Color from "../shared/Color";
 import { FavoriteBorder, Favorite, MoreVert } from "@material-ui/icons";
 import TimeForToday from "../shared/Time";
-import Modal, { More } from "../shared/modals";
+import Modal, { More, Alert } from "../shared/modals";
 
 const ProductDetail = (props) => {
   const dispatch = useDispatch();
@@ -18,6 +18,7 @@ const ProductDetail = (props) => {
   const [product, setProduct] = useState({});
   const [isLike, setIsLike] = useState(false);
   const [isActiveModal, setIsActiveModal] = useState(false);
+  const [isActiveAlert, setIsActiveAlert] = useState(false);
   const isCallAPI = useRef(false);
 
   useEffect(() => {
@@ -42,10 +43,16 @@ const ProductDetail = (props) => {
     setIsLike(!isLike);
   };
 
+  const handleRemove = () => {
+    alert("삭제!");
+  };
+
   return (
     <>
       <Container>
-        <ImageSlider images={product.images} />
+        <ImageWrap>
+          <ImageSlider images={product.images} />
+        </ImageWrap>
         <InfoWraper>
           <WriterWrap>
             <WriterColumn>
@@ -83,37 +90,46 @@ const ProductDetail = (props) => {
           </Content>
           <BottomWrap>
             <BottomColumn>
-              <Button
-                _onClick={handleLikeBtn}
-                padding="0"
-                width="auto"
-                bgColor="transparent"
-              >
-                {isLike ? (
-                  <Favorite style={{ color: Color.green }} />
-                ) : (
-                  <FavoriteBorder />
-                )}
-              </Button>
+              <LikeButtonWrap>
+                <Button
+                  _onClick={handleLikeBtn}
+                  padding="0"
+                  width="auto"
+                  bgColor="transparent"
+                >
+                  {isLike ? (
+                    <Favorite style={{ color: Color.green }} />
+                  ) : (
+                    <FavoriteBorder />
+                  )}
+                </Button>
+              </LikeButtonWrap>
+              <Text bold>{product.price}원</Text>
             </BottomColumn>
             <BottomColumn>
-              <Text bold>{product.price}원</Text>
-              <BtnCol>
-                <Button _onClick={() => history.push("/")}>
-                  <Text bold>돌아가기</Text>
-                </Button>
-                <Button width="auto" bgColor={Color.green}>
-                  <Text bold color={Color.white}>
-                    채팅으로 거래하기
-                  </Text>
-                </Button>
-              </BtnCol>
+              <Button _onClick={() => history.push("/")}>
+                <Text bold>돌아가기</Text>
+              </Button>
+              <Button width="auto" bgColor={Color.green}>
+                <Text bold color={Color.white}>
+                  채팅으로 거래하기
+                </Text>
+              </Button>
             </BottomColumn>
           </BottomWrap>
         </InfoWraper>
       </Container>
       <Modal state={isActiveModal} setState={setIsActiveModal}>
-        <More id={id} />
+        <More id={id} activeAlert={setIsActiveAlert} />
+      </Modal>
+      <Modal state={isActiveAlert} setState={setIsActiveAlert}>
+        <Alert
+          title="Remove"
+          description="정말로 삭제하시겠습니까?"
+          confirm
+          _onClick={handleRemove}
+          setState={setIsActiveAlert}
+        />
       </Modal>
     </>
   );
@@ -125,8 +141,8 @@ const Container = styled.div`
   justify-content: space-between;
 
   @media only screen and (min-width: 800px) {
-    width: 810px;
-    height: 600px;
+    width: 820px;
+    height: 500px;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -135,17 +151,23 @@ const Container = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
     border: 1px solid ${Color.gray};
-    & > section {
-      width: 400px;
+    & > section:last-child {
+      width: 100%;
+    }
+    & > section:first-child {
+      padding: 1em;
     }
   }
 `;
+
+const ImageWrap = styled.section``;
 
 const InfoWraper = styled.section`
   position: relative;
   height: 100%;
   @media only screen and (min-width: 800px) {
     padding: 1em;
+    padding-top: 0;
     border-left: 1px solid ${Color.gray};
   }
 `;
@@ -194,26 +216,35 @@ const BottomWrap = styled.section`
   @media only screen and (min-width: 800px) {
     position: absolute;
     width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
   }
+`;
+
+const LikeButtonWrap = styled.div`
+  padding: 1em;
+  border-right: 1px solid ${Color.gray};
 `;
 
 const BottomColumn = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1em;
-  &:first-child {
-    border-right: 1px solid ${Color.gray};
+  & > p {
+    padding-left: 1em;
   }
   &:last-child {
-    width: 100%;
-  }
-`;
-
-const BtnCol = styled.div`
-  display: flex;
-  & > :first-child {
-    margin-right: 1em;
+    padding: 0.5em 1em;
+    & > :first-child {
+      margin-right: 1em;
+    }
+    @media only screen and (min-width: 800px) {
+      width: 100%;
+      border-top: 1px solid ${Color.gray};
+      & > button {
+        width: 45%;
+      }
+    }
   }
 `;
 

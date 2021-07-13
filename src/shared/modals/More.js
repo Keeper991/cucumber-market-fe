@@ -4,7 +4,7 @@ import Color from "../Color";
 import { history } from "../../redux/configStore";
 
 const More = (props) => {
-  const { id } = props;
+  const { id, activeAlert } = props;
   return (
     <Container>
       <Button
@@ -14,7 +14,11 @@ const More = (props) => {
       >
         <Text bold>수정하기</Text>
       </Button>
-      <Button width="100%" bgColor={Color.red}>
+      <Button
+        width="100%"
+        bgColor={Color.red}
+        _onClick={() => activeAlert(true)}
+      >
         <Text bold color={Color.white}>
           삭제하기
         </Text>
@@ -25,6 +29,7 @@ const More = (props) => {
 
 More.defaultProps = {
   _onClick: () => {},
+  activeAlert: () => {},
 };
 
 const Container = styled.div`
