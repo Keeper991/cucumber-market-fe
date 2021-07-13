@@ -2,12 +2,14 @@ import styled from "styled-components";
 import React from "react";
 
 const Image = (props) => {
-  const { shape, width, height, src, _onClick } = props;
+  const { shape, width, size, height, src, _onClick, margin } = props;
 
   const styles = {
     src: src,
     width: width,
     height: height,
+    size: size,
+    margin: margin,
   };
 
   if (shape === "circle") {
@@ -26,23 +28,26 @@ const Image = (props) => {
 };
 
 Image.defaultProps = {
-  _onClick: () => {},
-  shape: "",
+  _onClick: () => { },
+  shape: "circle",
   src: "https://mean0images.s3.ap-northeast-2.amazonaws.com/4.jpeg",
   width: "6em",
   height: "6em",
   ratio: "4 * 3",
 };
 
+
 const ImageCircle = styled.div`
-  width: ${(props) => props.width};
-  height: ${(props) => props.height};
-  border-radius: 50%;
-  background-image: url(${(props) => props.src});
+  --size: ${(props) => props.size}px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: var(--size);
+
+  background-image: url("${(props) => props.src}");
   background-size: cover;
-  background-position: center;
   margin: ${(props) => props.margin};
 `;
+
 
 const AspectOutter = styled.div`
   width: ${(props) => props.width};

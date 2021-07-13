@@ -3,8 +3,17 @@ import styled from "styled-components";
 import Color from "../shared/Color";
 
 const Button = (props) => {
-  const { bgColor, color, margin, padding, width, circle, children, _onClick } =
-    props;
+  const {
+    is_float,
+    bgColor,
+    color,
+    margin,
+    padding,
+    width,
+    circle,
+    children,
+    _onClick,
+  } = props;
 
   const styles = {
     bgColor: bgColor,
@@ -13,6 +22,14 @@ const Button = (props) => {
     padding: padding,
     width: width,
   };
+
+  if (is_float) {
+    return (
+      <React.Fragment>
+        <FloatButton onClick={_onClick}>{children}</FloatButton>
+      </React.Fragment>
+    );
+  }
 
   if (circle) {
     return (
@@ -64,6 +81,23 @@ const BasicBtn = styled.button`
   background-color: ${({ bgColor }) => bgColor};
   border-radius: 10px;
   cursor: pointer;
+`;
+
+const FloatButton = styled.button`
+  width: 50px;
+  height: 50px;
+  background-color: #212121;
+  color: #ffffff;
+  box-sizing: border-box;
+  font-size: 30px;
+  font-weight: 400;
+  position: fixed;
+  bottom: 35px;
+  right: 25px;
+  text-align: center;
+  vertical-align: middle;
+  border: none;
+  border-radius: 50px;
 `;
 
 export default Button;
