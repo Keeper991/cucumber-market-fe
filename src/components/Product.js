@@ -70,6 +70,5 @@ const HeartBox = styled.div`
       align-items: flex-end;
 `;
 
-
 export default Product;
 

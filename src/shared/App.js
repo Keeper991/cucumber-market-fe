@@ -13,10 +13,6 @@ import Login from "../pages/Login";
 import Register from '../pages/Register';
 import NotFound from '../shared/NotFound';
 
-
-
-
-
 const App = () => {
 
   return (
@@ -39,7 +35,5 @@ const App = () => {
     </div>
   );
 };
-
-
 
 export default App;

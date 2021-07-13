@@ -13,7 +13,6 @@ const putProduct = createAction(PUT_PRODUCT, (product_list) => ({ product_list }
 const addProduct = createAction(ADD_PRODUCT, (product) => ({ product }));
 const likeToggle = createAction(LIKE_TOGGLE, (id, is_like) => ({ id, is_like }));
 
-
 // initailState
 const initialState = {
   list: [],
@@ -50,7 +49,6 @@ const getSellProductAPI = (user_id) => {
       });
   }
 }
-
 // 서버에서 is_like 정보 가져오는 함수
 const getLikeToggleAPI = () => {
   return function (dispatch, getState, { history }) {
@@ -58,13 +56,13 @@ const getLikeToggleAPI = () => {
     const _is_like = getState().product.list[p_index].is_like
 
     if (_is_like) {
-      axios.patch("http://localhost:3005/product/1", { is_like: false }).then((datalist) => {
+      axios.patch("http://localhost:3003/product/1", { is_like: false }).then((datalist) => {
         const data_list = datalist.data;
         dispatch(likeToggle(data_list.id, data_list.is_like))
         // user에 product_id 저장
       })
     } else {
-      axios.patch("http://localhost:3005/product/1", { is_like: true }).then((datalist) => {
+      axios.patch("http://localhost:3003/product/1", { is_like: true }).then((datalist) => {
         const data_list = datalist.data;
         dispatch(likeToggle(data_list.id, data_list.is_like))
         // user에 product_id 삭제
@@ -72,6 +70,21 @@ const getLikeToggleAPI = () => {
     }
   }
 }
+
+// // initailState
+// const initialState = {
+//   list: [
+//     {
+//       id: 1,
+//       image_url: "https://mean0images.s3.ap-northeast-2.amazonaws.com/4.jpeg",
+//       productName: "덩크 플립 240 판매합니다",
+//       productPrice: "100,000",
+//       insertedAt: "YYYY-MM-DD hh:mm:ss",
+//       category: "패션",
+//       is_like: false
+//     }
+//   ]
+// }
 
 
 // Reducer
@@ -110,7 +123,5 @@ const actionCreators = {
   getProductAPI,
   getSellProductAPI,
   getLikeToggleAPI,
-
 }
-
 export { actionCreators };

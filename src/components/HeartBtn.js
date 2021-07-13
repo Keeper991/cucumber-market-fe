@@ -17,7 +17,9 @@ const HeartBtn = (props) => {
 }
 
 const Heart = styled.div`
+  display: flex;
+  background: url(${(props) => props.icon_url});
+  background-size: cover;
   cursor: pointer;
 `;
-
 export default HeartBtn;
