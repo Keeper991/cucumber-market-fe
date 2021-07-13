@@ -6,16 +6,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { actionCreators as productActions } from "../redux/modules/product";
 import { history } from "../redux/configStore";
 
-const ProductList = (props) => {
+const SellList = (props) => {
   const dispatch = useDispatch();
-  const product_list = useSelector((store) => store.product.list);
+  const product_list = useSelector((state) => state.product.list);
 
   console.log(product_list);
 
   useEffect(() => {
     if (product_list.length === 0) {
-      dispatch(productActions.getProductAPI());
-      console.log('getProductAPI디스패치되었음');
+      dispatch(productActions.getSellProductAPI());
     }
   }, []);
 
@@ -24,12 +23,12 @@ const ProductList = (props) => {
       return (
         <Product {...product} key={product.id}
           onClick={() => {
-            console.log('프로덕트 클릭했어');
-            // history.push(`/product/${product.id}`);
+            console.log('내가 판매한 프로덕트 클릭했어');
           }} />
-      );
+      )
     })
   );
+
 }
 
-export default ProductList;
+export default SellList;
