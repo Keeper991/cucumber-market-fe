@@ -1,23 +1,37 @@
-import { useState } from "react";
+import React from 'react';
 
-import Input from "../elements/Input";
+import { Route } from "react-router-dom";
+import { ConnectedRouter } from "connected-react-router";
+import { history } from '../redux/configStore';
+
+import Button from "../elements/Button";
+import Header from '../components/Header';
+
+import ProductList from "../pages/ProductList";
+import MyPage from "../pages/MyPage";
+import Login from "../pages/Login";
+import Register from '../pages/Register';
+import NotFound from '../shared/NotFound';
 
 const App = () => {
-  const [value, setValue] = useState("");
+
   return (
     <div className="App">
-      <Input
-        value={value}
-        placeholder="오이오이"
-        onChange={(e) => setValue(e.target.value)}
-      />
-      <Input
-        multiLine
-        placeholder="멀티멀티"
-        onChange={(e) => setValue(e.target.value)}
-      >
-        {value}
-      </Input>
+
+      <ConnectedRouter history={history}>
+        <Header />
+        <Route path="/" exact component={ProductList} />
+        <Route path="/me" exact component={MyPage} />
+        <Route path="/login" exact component={Login} />
+        <Route path="/register" exact component={Register} />
+      </ConnectedRouter>
+      <Button
+        bg='black'
+        is_float
+        _onClick={() => {
+          history.push("/");
+        }}
+      >+</Button>
     </div>
   );
 };

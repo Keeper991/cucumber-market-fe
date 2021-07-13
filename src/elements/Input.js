@@ -9,6 +9,8 @@ const Input = ({
   _onClick,
   placeholder,
   type,
+  border,
+  margin,
 }) => {
   const attrs = {
     onChange: _onChange,
@@ -16,6 +18,8 @@ const Input = ({
     placeholder,
     type,
     value,
+    border,
+    margin,
   };
   if (multiLine) {
     return <ElTextarea {...attrs} />;
@@ -31,19 +35,19 @@ Input.defaultProps = {
   placeholder: "",
   disabled: false,
   type: "text",
-  _onChange: () => {},
-  _onClick: () => {},
+  _onChange: () => { },
+  _onClick: () => { },
+  border: "none",
 };
 
 const ElInput = styled.input`
   width: 100%;
-  padding: 1em 0;
-  border: none;
-  border-bottom: 1px solid ${Color.gray};
+  padding: 1em 10px;
   &:focus,
   &:active {
     outline: none;
   }
+  margin: ${(props) => props.margin};
 `;
 
 const ElTextarea = styled.textarea`

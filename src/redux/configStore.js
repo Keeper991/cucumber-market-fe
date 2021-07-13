@@ -3,14 +3,14 @@ import { createBrowserHistory } from "history";
 import { connectRouter } from "connected-react-router";
 import thunk from "redux-thunk";
 
-// import user from "./modules/user";
-// import product from "./modules/product";
+import user from "./modules/user";
+import product from "./modules/product";
 // import image from "./modules/image";
 
 const history = createBrowserHistory();
 const rootReducer = combineReducers({
-  // user,
-  // product,
+  user,
+  product,
   // image,
   router: connectRouter(history),
 });
@@ -26,8 +26,8 @@ if (env === "development") {
 const composeEnhancers =
   typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-        // Specify extension’s options like name, actionsBlacklist, actionsCreators, serialize...
-      })
+      // Specify extension’s options like name, actionsBlacklist, actionsCreators, serialize...
+    })
     : compose;
 
 const enhancer = composeEnhancers(applyMiddleware(...middlewares));
