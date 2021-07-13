@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Input, Button, Image, Text } from "../elements";
 import UploadImg from "../shared/UploadImg";
 import { useDispatch, useSelector } from "react-redux";
-import Modal, { Category } from "../shared/modals";
+import Modal, { Category, Alert } from "../shared/modals";
 import { actionCreators as imageActions } from "../redux/modules/image";
 import { actionCreators as productActions } from "../redux/modules/product";
 import Color from "../shared/Color";
@@ -17,6 +17,7 @@ const ProductForm = (props) => {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("카테고리 선택");
   const [isActiveModal, setIsActiveModal] = useState(false);
+  const [isActiveAlert, setIsActiveAlert] = useState(false);
   const imageList = useSelector((store) => store.image.list);
   const productList = useSelector((store) => store.product.list);
   const dispatch = useDispatch();
@@ -85,70 +86,78 @@ const ProductForm = (props) => {
   };
 
   return (
-    <Container>
-      <ImageListWrap>
-        <UploadImg />
-        {imageList?.map((img, idx) => (
-          <ImageWrap key={idx}>
+    <>
+      <Container>
+        <ImageListWrap>
+          <UploadImg max="10" activeAlert={setIsActiveAlert} />
+          {imageList?.map((img, idx) => (
+            <ImageWrap key={idx}>
+              <Button
+                circle
+                padding=".5em"
+                _onClick={() => dispatch(imageActions.removeImage(idx))}
+              >
+                <Clear />
+              </Button>
+              <Image width="6em" height="6em" src={img} />
+            </ImageWrap>
+          ))}
+        </ImageListWrap>
+        <ContentWrap>
+          <Input
+            placeholder="게시글 제목"
+            value={title}
+            _onChange={(e) => setTitle(e.target.value)}
+          />
+          <Input
+            placeholder="물품명"
+            value={name}
+            _onChange={(e) => setName(e.target.value)}
+          />
+          <Input placeholder="가격" value={price} _onChange={handlePrice} />
+          <CategoryArea onClick={() => setIsActiveModal(true)}>
+            {category}
+            <ArrowForwardIos fontSize="small" />
+          </CategoryArea>
+          <Input
+            multiLine
+            placeholder="게시물 설명"
+            value={description}
+            _onChange={(e) => setDescription(e.target.value)}
+          />
+          <ButtonWrap>
             <Button
-              circle
-              padding=".5em"
-              _onClick={() => dispatch(imageActions.removeImage(idx))}
+              width="45%"
+              bgColor={Color.lightGreen}
+              _onClick={() => history.push("/")}
             >
-              <Clear />
+              <Text bold>취소</Text>
             </Button>
-            <Image width="6em" height="6em" src={img} />
-          </ImageWrap>
-        ))}
-      </ImageListWrap>
-      <ContentWrap>
-        <Input
-          placeholder="게시글 제목"
-          value={title}
-          _onChange={(e) => setTitle(e.target.value)}
-        />
-        <Input
-          placeholder="물품명"
-          value={name}
-          _onChange={(e) => setName(e.target.value)}
-        />
-        <Input placeholder="가격" value={price} _onChange={handlePrice} />
-        <CategoryArea onClick={() => setIsActiveModal(true)}>
-          {category}
-          <ArrowForwardIos fontSize="small" />
-        </CategoryArea>
-        <Input
-          multiLine
-          placeholder="게시물 설명"
-          value={description}
-          _onChange={(e) => setDescription(e.target.value)}
-        />
-      </ContentWrap>
-      <ButtonWrap>
-        <Button
-          width="45%"
-          bgColor={Color.lightGreen}
-          _onClick={() => history.push("/")}
-        >
-          <Text bold>취소</Text>
-        </Button>
-        {!title ||
-        !name ||
-        !description ||
-        !price ||
-        !(category !== "카테고리 선택") ||
-        !imageList ? (
-          <Button disabled width="45%">
-            <Text bold>{path === "/edit/:id" ? "수정완료" : "작성완료"}</Text>
-          </Button>
-        ) : (
-          <Button width="45%" bgColor={Color.green} _onClick={handleComplete}>
-            <Text bold color={Color.white}>
-              {path === "/edit/:id" ? "수정완료" : "작성완료"}
-            </Text>
-          </Button>
-        )}
-      </ButtonWrap>
+            {!title ||
+            !name ||
+            !description ||
+            !price ||
+            !(category !== "카테고리 선택") ||
+            !imageList ? (
+              <Button disabled width="45%">
+                <Text bold>
+                  {path === "/edit/:id" ? "수정완료" : "작성완료"}
+                </Text>
+              </Button>
+            ) : (
+              <Button
+                width="45%"
+                bgColor={Color.green}
+                _onClick={handleComplete}
+              >
+                <Text bold color={Color.white}>
+                  {path === "/edit/:id" ? "수정완료" : "작성완료"}
+                </Text>
+              </Button>
+            )}
+          </ButtonWrap>
+        </ContentWrap>
+      </Container>
       <Modal setState={setIsActiveModal} state={isActiveModal}>
         <Category
           _onClick={(e) => {
@@ -157,16 +166,40 @@ const ProductForm = (props) => {
           }}
         />
       </Modal>
-    </Container>
+      <Modal setState={setIsActiveAlert} state={isActiveAlert}>
+        <Alert
+          title="Too many pictures... 😢"
+          description={`이미지가 너무 많습니다... \n 10장 이하로 선택해주세요.`}
+          setState={setIsActiveAlert}
+        />
+      </Modal>
+    </>
   );
 };
 
-const Container = styled.section``;
+const Container = styled.section`
+  @media only screen and (min-width: 800px) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    width: 800px;
+    justify-content: center;
+    border: 1px solid ${Color.gray};
+    padding: 1em;
+    & > section {
+      width: 400px;
+      height: 100%;
+    }
+  }
+`;
 
 const ImageListWrap = styled.section`
   width: 100%;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 6em);
+  grid-gap: 1em;
   margin-bottom: 1em;
   & > * {
     margin-bottom: 1em;
@@ -175,6 +208,10 @@ const ImageListWrap = styled.section`
   }
   & > *:not(:last-child) {
     margin-right: 1em;
+  }
+  @media only screen and (min-width: 800px) {
+    grid-template-rows: repeat(4, 6em);
+    border-right: 1px solid ${Color.gray};
   }
 `;
 
@@ -207,6 +244,11 @@ const ImageWrap = styled.div`
 
 const ContentWrap = styled.section`
   padding-bottom: 75px;
+  position: relative;
+  @media only screen and (min-width: 800px) {
+    padding: 0 0 0 1em;
+    height: 100%;
+  }
 `;
 
 const CategoryArea = styled.div`
@@ -230,6 +272,10 @@ const ButtonWrap = styled.div`
   align-items: center;
   padding: 1em;
   background-color: ${Color.white};
+  @media only screen and (min-width: 800px) {
+    position: static;
+    padding: 1em 0 0 0;
+  }
 `;
 
 export default ProductForm;

@@ -26,7 +26,7 @@ const Category = (props) => {
   return (
     <Container>
       <Header>
-        <Text title bold size="2rem;">
+        <Text bold size="2rem;">
           카테고리 선택
         </Text>
       </Header>

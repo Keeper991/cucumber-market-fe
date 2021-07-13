@@ -5,7 +5,8 @@ import { actionCreators as imageActions } from "../redux/modules/image";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 
-const UploadImg = () => {
+const UploadImg = (props) => {
+  const { activeAlert } = props;
   const imageList = useSelector((store) => store.image.list);
   const dispatch = useDispatch();
   const getFileDataAsync = useCallback(async (files) => {
@@ -26,6 +27,10 @@ const UploadImg = () => {
   const handleChange = async (e) => {
     dispatch(imageActions.setUploading(true));
     const { files } = e.target;
+    if (files.length + imageList?.length > props.max) {
+      activeAlert(true);
+      return;
+    }
     const list = await getFileDataAsync(files);
     dispatch(imageActions.addImage(list));
     dispatch(imageActions.setUploading(false));
@@ -54,6 +59,7 @@ const InputLabel = styled.label`
   align-items: center;
   border: 1px solid ${Color.gray};
   border-radius: 10px;
+  cursor: pointer;
   & > *:not(:last-child) {
     margin-bottom: 0.5em;
   }
