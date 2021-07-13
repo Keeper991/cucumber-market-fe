@@ -1,25 +1,29 @@
-import { useState } from "react";
-
-import Input from "../elements/Input";
+import { ConnectedRouter } from "connected-react-router";
+import { Route } from "react-router-dom";
+import ProductForm from "../pages/ProductForm";
+import { history } from "../redux/configStore";
+import styled from "styled-components";
+import ProductList from "../pages/ProductList";
+import ProductDetail from "../pages/ProductDetail";
 
 const App = () => {
-  const [value, setValue] = useState("");
   return (
     <div className="App">
-      <Input
-        value={value}
-        placeholder="오이오이"
-        onChange={(e) => setValue(e.target.value)}
-      />
-      <Input
-        multiLine
-        placeholder="멀티멀티"
-        onChange={(e) => setValue(e.target.value)}
-      >
-        {value}
-      </Input>
+      <Content>
+        <ConnectedRouter history={history}>
+          <Route path="/" component={ProductList} exact />
+          <Route path="/create" component={ProductForm} />
+          <Route path="/detail/:id" component={ProductDetail} />
+          <Route path="/edit/:id" component={ProductForm} />
+        </ConnectedRouter>
+      </Content>
     </div>
   );
 };
+
+const Content = styled.section`
+  padding: 0 1em;
+  width: 100%;
+`;
 
 export default App;

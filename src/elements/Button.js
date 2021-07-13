@@ -49,6 +49,7 @@ const CircleBtn = styled.button`
   border: none;
   background-color: ${({ bgColor }) => bgColor};
   border-radius: 50%;
+  cursor: pointer;
 `;
 
 const BasicBtn = styled.button`
@@ -62,6 +63,7 @@ const BasicBtn = styled.button`
   border: none;
   background-color: ${({ bgColor }) => bgColor};
   border-radius: 10px;
+  cursor: pointer;
 `;
 
 export default Button;

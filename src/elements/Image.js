@@ -31,6 +31,7 @@ Image.defaultProps = {
   src: "https://mean0images.s3.ap-northeast-2.amazonaws.com/4.jpeg",
   width: "6em",
   height: "6em",
+  ratio: "4 * 3",
 };
 
 const ImageCircle = styled.div`
@@ -49,7 +50,7 @@ const AspectOutter = styled.div`
 `;
 
 const AspectInner = styled.div`
-  padding-top: 75%;
+  ${({ width, ratio }) => `padding-top: calc(${width} / ${ratio});`}
   background-image: url(${(props) => props.src});
   background-size: cover;
   background-position: center;
