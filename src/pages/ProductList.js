@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import Product from "../components/Product";
+import Button from "../elements/Button";
+
 
 import { useSelector, useDispatch } from "react-redux";
 import { actionCreators as productActions } from "../redux/modules/product";
@@ -29,7 +31,16 @@ const ProductList = (props) => {
             // history.push(`/product/${product.id}`);
           }} />
       );
-    })
+    }),
+
+    < Button
+      bg='black'
+      is_float
+      _onClick={() => {
+        history.push("/");
+      }}
+    >+</ Button>
+
   );
 }
 

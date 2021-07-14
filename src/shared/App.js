@@ -11,7 +11,8 @@ import ProductList from "../pages/ProductList";
 import MyPage from "../pages/MyPage";
 import Login from "../pages/Login";
 import Register from '../pages/Register';
-import NotFound from '../shared/NotFound';
+import ChatList from '../pages/ChatList';
+import ChattingRoom from '../pages/ChattingRoom';
 
 const App = () => {
 
@@ -24,14 +25,10 @@ const App = () => {
         <Route path="/me" exact component={MyPage} />
         <Route path="/login" exact component={Login} />
         <Route path="/register" exact component={Register} />
+        <Route path="/chatlist" exact component={ChatList} />
+        <Route path="/chattingroom" exact component={ChattingRoom} />
       </ConnectedRouter>
-      <Button
-        bg='black'
-        is_float
-        _onClick={() => {
-          history.push("/");
-        }}
-      >+</Button>
+
     </div>
   );
 };
