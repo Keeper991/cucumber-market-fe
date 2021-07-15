@@ -34,9 +34,9 @@
 
 ## Coummunication Tools
 
-- slack
+- Slack
 - Notion
-- gather
+- Gather Town
 - Git/GitHub
 
 ## Function
