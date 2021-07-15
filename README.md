@@ -2,18 +2,18 @@
 
 > 중고거래는 역시, 오이마켓!! 🥒
 
-## Introduction
+## 📍 Introduction
 
-## Period
+## 📍 Period
 
 21.07.8 ~ 21.7.5
 
-## Members
+## 📍 Members
 
 - Frontend(React) : 박세현, 우지음
 - Backend(Node.js) : 변정섭, 문진영, 이은택
 
-## Front Techs
+## 📍 Front Techs
 
 - React
 - React Hooks
@@ -22,13 +22,13 @@
 - immer
 -
 
-## Coummunication Tools
+## 📍 Coummunication Tools
 
 - slack
 - Notion
 - Git + GitHub
 
-## Function
+## 📍 Function
 
 1. 로그인, 로그아웃, 회원가입
 
