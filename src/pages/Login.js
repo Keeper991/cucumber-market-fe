@@ -1,64 +1,83 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-
-import { useDispatch } from "react-redux";
-
-import { Text, Button } from "../elements/index";
-import Input from "../elements/Input";
+import { useDispatch, useSelector } from "react-redux";
+import { Button, Input, Text } from "../elements";
 import { history } from "../redux/configStore";
+import Color from "../shared/Color";
+import { actionCreators as userActions } from "../redux/modules/user";
+import { getIdFromToken, getUserInfoFromLS } from "../shared/Permit";
+import Spinner from "../shared/Spinner";
 
-const Login = (props) => {
+const Login = () => {
   const dispatch = useDispatch();
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
+  const isLoading = useSelector((store) => store.user.isLoading);
 
-  const [id, setId] = useState('');
-  const [password, setPassword] = useState('');
-
-  const onChangeId = (e) => { setId(e.target.value) }
-  const onChangePassword = (e) => { setPassword(e.target.value) }
-
-  const siteLogin = () => {
-    if (id === "" || password === "") {
-      window.alert("아이디와 패스워드 모두 입력해주세요!");
-      return;
+  useEffect(() => {
+    if (getIdFromToken() && getUserInfoFromLS()) {
+      history.replace("/");
     }
-    // dispatch(userActions.loginAPI(id, password));
-  }
+  }, []);
+
+  const onChangeId = (e) => {
+    setId(e.target.value);
+  };
+  const onChangePassword = (e) => {
+    setPassword(e.target.value);
+  };
+
+  const handleLogin = () => {
+    const userData = {
+      userId: id,
+      password: password,
+    };
+
+    dispatch(userActions.loginAPI(userData));
+  };
 
   return (
-    <Wrapper>
-      <Container>
+    <>
+      {isLoading && <Spinner />}
+      <Wrapper>
+        <Container>
+          <Input
+            _onChange={onChangeId}
+            placeholder={"아이디를 입력해주세요"}
+            value={id}
+            borderBottom
+          ></Input>
 
-        <Input
-          margin="0px 0px 15px 0px"
-          _onChange={onChangeId}
-          placeholder={"아이디를 입력해주세요"}
-          value={id}
-        ></Input>
+          <Input
+            _onChange={onChangePassword}
+            placeholder={"비밀번호를 입력해주세요"}
+            value={password}
+            borderBottom
+          ></Input>
 
-        <Input
-          margin="0px 0px 15px 0px"
-          _onChange={onChangePassword}
-          placeholder={"비밀번호를 입력해주세요"}
-          value={password}
-        ></Input>
-
-        <Button
-          width="400px"
-          bgColor="#55D142"
-          margin="0px 0px 12px 0px"
-          _onClick={siteLogin} >로그인</Button>
-
-        <Button
-          width="400px"
-          _onClick={() => {
-            history.push("/register");
-          }
-          }>회원가입</Button>
-
-      </Container>
-    </Wrapper>
+          {!id || !password ? (
+            <Button width="100%" disabled>
+              <Text bold>로그인</Text>
+            </Button>
+          ) : (
+            <Button width="100%" bgColor={Color.green} _onClick={handleLogin}>
+              <Text bold>로그인</Text>
+            </Button>
+          )}
+          <Button
+            width="100%"
+            bgColor={Color.lightGreen}
+            _onClick={() => {
+              history.push("/register");
+            }}
+          >
+            <Text bold>회원가입</Text>
+          </Button>
+        </Container>
+      </Wrapper>
+    </>
   );
-}
+};
 
 const Wrapper = styled.div`
   display: flex;
@@ -75,6 +94,17 @@ const Container = styled.div`
   align-items: center;
   width: 400px;
   margin-top: 50px;
+  border: 1px solid ${Color.gray};
+  padding: 1em;
+  & > input {
+    margin-bottom: 1em;
+  }
+  & > button:first-of-type {
+    margin-top: 2em;
+  }
+  & > button:not(:last-of-type) {
+    margin-bottom: 1em;
+  }
 `;
 
 export default Login;

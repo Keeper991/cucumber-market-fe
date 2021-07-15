@@ -1,88 +1,122 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-
-import Text from "../elements/Text";
-import Image from "../elements/Image";
-import LikeList from "../pages/ProductList";
-import Sellist from "../components/SellList";
-
+import { Text, Image } from "../elements";
 import { useSelector, useDispatch } from "react-redux";
-import { actionCreators as productActions } from "../redux/modules/product";
 import { actionCreators as userActions } from "../redux/modules/user";
 import { history } from "../redux/configStore";
+import { getIdFromToken, getUserInfoFromLS } from "../shared/Permit";
+import Color from "../shared/Color";
+import Product from "../components/Product";
+import Spinner from "../shared/Spinner";
 
 const MyPage = (props) => {
   const dispatch = useDispatch();
-  const product_list = useSelector((store) => store.product.list);
-  const user_id = useSelector((store) => store.user.user.id);
-  const nickname = useSelector((store) => store.user.user.nickname);
-  console.log(user_id, typeof user_id);
-
+  const { username: nickname } = getUserInfoFromLS();
   const [isSellList, setIsSellList] = useState(true);
-
-  console.log(product_list);
+  const isLogin = useSelector((store) => store.user.isLogin);
+  const isLoading = useSelector((store) => store.user.isLoading);
+  const { myPosts, favorites } = useSelector((store) => store.user.myPageInfo);
+  const id = getIdFromToken();
+  const isCallAPI = useRef(false);
 
   useEffect(() => {
-    if (product_list.length === 0) {
-      dispatch(productActions.getSellProductAPI(user_id));
-      console.log('getsellProductAPI디스패치되었음');
+    if (!id) {
+      alert("로그인해주세요.");
+      history.replace("/login");
+      return;
     }
-    // if (!user) {
-    //   dispatch(userActions.getUserAPI(user_id));
-    // }
-  }, []);
+
+    if (id && isLogin && myPosts.length === 0 && favorites.length === 0) {
+      if (isCallAPI.current) return;
+      dispatch(userActions.getMyPageInfoAPI(id));
+      isCallAPI.current = true;
+    }
+  }, [dispatch, favorites, id, isLogin, myPosts]);
 
   return (
     <>
+      {isLoading && <Spinner />}
       <Wrapper>
         <Container>
           <TitleBox>
-            <Text size="20px" bold>나의 오이</Text>
+            <Text size="20px" bold>
+              나의 오이
+            </Text>
           </TitleBox>
-
-          {/* <Selllist /> */}
-
           <ProfileBox>
-            <Image margin="0px 15px 0px 0px" circle src="https://github.com/rohjs/bugless-101/blob/master/css-basic/float-2/assets/user.jpg?raw=true" size="70" />
-            <Text size="17px" bold >{nickname}</Text>
-
+            <Image
+              shape="circle"
+              src="https://github.com/rohjs/bugless-101/blob/master/css-basic/float-2/assets/user.jpg?raw=true"
+              size="5em"
+            />
+            <ProfileColumn>
+              <Text>고마운분,</Text>
+              <Text bold size="1.5em">
+                {nickname}
+              </Text>
+            </ProfileColumn>
           </ProfileBox>
-
+          <ListBtnWrap>
+            <SellListBtn
+              onClick={() => {
+                setIsSellList(true);
+              }}
+            >
+              {isSellList ? (
+                <Text bold color={Color.green}>
+                  나의 판매 내역
+                </Text>
+              ) : (
+                <Text bold>나의 판매 내역</Text>
+              )}
+            </SellListBtn>
+            <LikeListBtn
+              onClick={() => {
+                setIsSellList(false);
+              }}
+            >
+              {isSellList ? (
+                <Text bold>내가 찜한 물건</Text>
+              ) : (
+                <Text bold color={Color.green}>
+                  내가 찜한 물건
+                </Text>
+              )}
+            </LikeListBtn>
+          </ListBtnWrap>
           <MyList>
-
-            <MySellList onClick={() => {
-              setIsSellList(true);
-              console.log("나의 판매내역 눌렀음")
-            }}>
-              <Text bold>나의 판매 내역</Text>
-            </MySellList>
-
-            <MyLikelist onClick={() => {
-              setIsSellList(false);
-              console.log("내가 찜한 물건 눌렀음")
-            }}>
-              <Text bold>내가 찜한 물건</Text>
-            </MyLikelist>
+            {isSellList
+              ? myPosts.map((s) => (
+                  <Product
+                    {...s}
+                    key={s._id}
+                    onClick={() => {
+                      history.push(`/detail/${s._id}`);
+                    }}
+                  />
+                ))
+              : favorites.map((f) => (
+                  <Product
+                    {...f}
+                    key={f._id}
+                    onClick={() => {
+                      history.push(`/detail/${f._id}`);
+                    }}
+                  />
+                ))}
           </MyList>
-
-          <div>
-            {isSellList ? <Sellist /> : <LikeList />}
-          </div>
-
         </Container>
       </Wrapper>
     </>
   );
-}
-
+};
 
 const Wrapper = styled.div`
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100vw;
+  width: 100%;
+  margin-top: 1em;
 `;
 
 const Container = styled.div`
@@ -90,17 +124,21 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 500px;
+  width: 100%;
+  padding: 1em;
+  @media only screen and (min-width: 800px) {
+    width: 600px;
+    border: 1px solid ${Color.gray};
+  }
 `;
 
 const TitleBox = styled.div`
   display: flex;
   justify-content: flex-start;
   padding: 15px 15px;
-  border-bottom: 1px solid #E5E5E5;
+  border-bottom: 1px solid #e5e5e5;
   align-self: flex-start;
-  width: 500px;
-
+  width: 100%;
 `;
 
 const ProfileBox = styled.div`
@@ -108,31 +146,39 @@ const ProfileBox = styled.div`
   align-items: center;
   align-self: flex-start;
   padding: 15px 15px;
-  width: 500px;
-  border-bottom: 1px solid #E5E5E5;
+  border-bottom: 1px solid #e5e5e5;
+  width: 100%;
 `;
 
-const MyList = styled.div`
-display: flex;
-justify-content: space-between;
-width: 500px;
+const ProfileColumn = styled.div`
+  margin-left: 1em;
+  line-height: 1.5;
 `;
 
-const MySellList = styled.div`
-align-self: flex-start;
+const ListBtnWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const SellListBtn = styled.div`
+  align-self: flex-start;
   padding: 15px 15px;
-  border-bottom: 1px solid #E5E5E5;
-  width: 230px;
+  border-bottom: 1px solid #e5e5e5;
+  width: 45%;
   cursor: pointer;
 `;
 
-const MyLikelist = styled.div`
-align-self: flex-start;
+const LikeListBtn = styled.div`
+  align-self: flex-start;
   padding: 15px 15px;
-  border-bottom: 1px solid #E5E5E5;
-  width: 250px;
+  border-bottom: 1px solid #e5e5e5;
+  width: 45%;
   cursor: pointer;
+`;
+
+const MyList = styled.section`
+  width: 100%;
 `;
 
 export default MyPage;
-

@@ -6,20 +6,24 @@ import { history } from "../redux/configStore";
 import { useDispatch, useSelector } from "react-redux";
 import { actionCreators as productActions } from "../redux/modules/product";
 import Color from "../shared/Color";
-import { FavoriteBorder, Favorite, MoreVert } from "@material-ui/icons";
+import { MoreVert } from "@material-ui/icons";
 import TimeForToday from "../shared/Time";
 import Modal, { More, Alert } from "../shared/modals";
+import { getIdFromToken } from "../shared/Permit";
+import HeartBtn from "../components/HeartBtn";
+import Spinner from "../shared/Spinner";
 
 const ProductDetail = (props) => {
   const dispatch = useDispatch();
-  const id = parseInt(props.match.params.id);
+  const id = props.match.params.id;
   const productList = useSelector((store) => store.product.list);
-  const user = useSelector((store) => store.user);
+  const isLoading = useSelector((store) => store.product.isLoading);
   const [product, setProduct] = useState({});
-  const [isLike, setIsLike] = useState(false);
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [isActiveAlert, setIsActiveAlert] = useState(false);
   const isCallAPI = useRef(false);
+  const userId = getIdFromToken();
+  const isLogin = useSelector((store) => store.user.isLogin);
 
   useEffect(() => {
     if (!id) {
@@ -27,28 +31,24 @@ const ProductDetail = (props) => {
       return;
     }
     if (productList.length === 0) {
-      dispatch(productActions.loadProductOneAPI(id));
+      dispatch(productActions.getProductOneAPI(id));
       isCallAPI.current = true;
     }
 
-    const product = productList.find((p) => p.id === id);
+    const product = productList.find((p) => p._id === id);
     if (!product) {
       if (isCallAPI.current) return;
     }
-
     setProduct(product);
   }, [dispatch, id, productList]);
 
-  const handleLikeBtn = () => {
-    setIsLike(!isLike);
-  };
-
   const handleRemove = () => {
-    alert("삭제!");
+    dispatch(productActions.removeProductAPI(id));
   };
 
   return (
     <>
+      {isLoading && <Spinner />}
       <Container>
         <ImageWrap>
           <ImageSlider images={product.images} />
@@ -58,21 +58,22 @@ const ProductDetail = (props) => {
             <WriterColumn>
               <Image
                 shape="circle"
-                width="2em"
-                height="2em"
-                src={product.writer?.profile}
+                size="2em"
+                src={product.user?.userProfile}
               />
-              <Text>{product.writer?.name}</Text>
+              <Text>{product.user?.username}</Text>
             </WriterColumn>
             <WriterColumn>
               <Text>{TimeForToday(product.insertedAt)}</Text>
-              <Button
-                padding="0.5em"
-                width="3em"
-                _onClick={() => setIsActiveModal(true)}
-              >
-                <MoreVert />
-              </Button>
+              {isLogin && userId === product.user?.userId && (
+                <Button
+                  padding="0.5em"
+                  width="3em"
+                  _onClick={() => setIsActiveModal(true)}
+                >
+                  <MoreVert />
+                </Button>
+              )}
             </WriterColumn>
           </WriterWrap>
           <Content>
@@ -91,20 +92,11 @@ const ProductDetail = (props) => {
           <BottomWrap>
             <BottomColumn>
               <LikeButtonWrap>
-                <Button
-                  _onClick={handleLikeBtn}
-                  padding="0"
-                  width="auto"
-                  bgColor="transparent"
-                >
-                  {isLike ? (
-                    <Favorite style={{ color: Color.green }} />
-                  ) : (
-                    <FavoriteBorder />
-                  )}
-                </Button>
+                <HeartBtn id={id} />
               </LikeButtonWrap>
-              <Text bold>{product.price}원</Text>
+              <Text bold>
+                {parseInt(product.price).toLocaleString("ko-KR")}원
+              </Text>
             </BottomColumn>
             <BottomColumn>
               <Button _onClick={() => history.push("/")}>

@@ -6,9 +6,12 @@ import { useDispatch, useSelector } from "react-redux";
 import Modal, { Category, Alert } from "../shared/modals";
 import { actionCreators as imageActions } from "../redux/modules/image";
 import { actionCreators as productActions } from "../redux/modules/product";
+import { actionCreators as userActions } from "../redux/modules/user";
 import Color from "../shared/Color";
 import { Clear, ArrowForwardIos } from "@material-ui/icons";
 import { history } from "../redux/configStore";
+import { getIdFromToken, getUserInfoFromLS } from "../shared/Permit";
+import Spinner from "../shared/Spinner";
 
 const ProductForm = (props) => {
   const [title, setTitle] = useState("");
@@ -20,23 +23,45 @@ const ProductForm = (props) => {
   const [isActiveAlert, setIsActiveAlert] = useState(false);
   const imageList = useSelector((store) => store.image.list);
   const productList = useSelector((store) => store.product.list);
+  const isLogin = useSelector((store) => store.user.isLogin);
+  const isLoading = useSelector((store) => store.user.isLoading);
+  const isUploading = useSelector((store) => store.image.isUploading);
   const dispatch = useDispatch();
   const isCallAPI = useRef(false);
   const insertedAt = useRef("");
   const imgUploadCnt = useRef(0);
   const { path } = props.match;
+  const userId = getIdFromToken();
+  const userInfo = getUserInfoFromLS();
+
+  useEffect(() => {
+    // user login 유무 확인
+    if (userId && userInfo && !isLogin) {
+      dispatch(userActions.setIsLogin(true));
+    } else if (!userId || !userInfo) {
+      alert("로그인해주세요.");
+      history.replace("/login");
+      return;
+    }
+  }, [dispatch, userId, isLogin, userInfo]);
 
   useEffect(() => {
     if (path === "/edit/:id") {
-      const id = parseInt(props.match.params.id);
+      const id = props.match.params.id;
       if (productList.length === 0) {
-        dispatch(productActions.loadProductOneAPI(id));
+        dispatch(productActions.getProductOneAPI(id));
         isCallAPI.current = true;
       }
 
-      const product = productList.find((p) => p.id === id);
+      const product = productList.find((p) => p._id === id);
       if (!product) {
         if (isCallAPI.current) return;
+      }
+
+      if (userId !== product.user.userId) {
+        alert("권한이 없습니다.");
+        history.replace("/");
+        return;
       }
 
       setTitle(product.title);
@@ -48,7 +73,7 @@ const ProductForm = (props) => {
       imgUploadCnt.current = parseInt(product.imgUploadCnt);
       dispatch(imageActions.setImage(product.images));
     }
-  }, [productList, props.match, dispatch, path]);
+  }, [productList, props.match, dispatch, path, userId]);
 
   const handlePrice = (e) => {
     if (/^-?\d*\.?\d*$/.test(e.target.value)) {
@@ -58,35 +83,33 @@ const ProductForm = (props) => {
 
   const handleComplete = () => {
     const user = {
-      id: "a@a.com",
-      name: "aaa",
-      profile:
-        "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=640&q=80",
+      userId,
+      username: userInfo.username,
+      userProfile: userInfo.userProfile,
     };
 
     const data = {
-      id: parseInt(props.match.params.id),
-      writer: user,
+      user,
       productName: name,
       productCategory: category,
       title,
       description,
       images: imageList,
-      price,
-      insertedAt: insertedAt.current,
-      imgUploadCnt: imgUploadCnt.current,
+      price: parseInt(price),
     };
 
     if (path === "/edit/:id") {
+      data._id = props.match.params.id;
+      data.imgUploadCnt = parseInt(imgUploadCnt.current);
       dispatch(productActions.editProductAPI(data));
     } else {
       dispatch(productActions.addProductAPI(data));
     }
-    history.push(`/detail/${props.match.params.id}`);
   };
 
   return (
     <>
+      {(isLoading || isUploading) && <Spinner />}
       <Container>
         <ImageListWrap>
           <UploadImg max="10" activeAlert={setIsActiveAlert} />
@@ -95,6 +118,7 @@ const ProductForm = (props) => {
               <Button
                 circle
                 padding=".5em"
+                width="3em"
                 _onClick={() => dispatch(imageActions.removeImage(idx))}
               >
                 <Clear />
@@ -107,14 +131,21 @@ const ProductForm = (props) => {
           <Input
             placeholder="게시글 제목"
             value={title}
+            borderBottom
             _onChange={(e) => setTitle(e.target.value)}
           />
           <Input
             placeholder="물품명"
             value={name}
+            borderBottom
             _onChange={(e) => setName(e.target.value)}
           />
-          <Input placeholder="가격" value={price} _onChange={handlePrice} />
+          <Input
+            placeholder="가격"
+            value={price}
+            borderBottom
+            _onChange={handlePrice}
+          />
           <CategoryArea onClick={() => setIsActiveModal(true)}>
             {category}
             <ArrowForwardIos fontSize="small" />
@@ -123,6 +154,7 @@ const ProductForm = (props) => {
             multiLine
             placeholder="게시물 설명"
             value={description}
+            borderBottom
             _onChange={(e) => setDescription(e.target.value)}
           />
           <ButtonWrap>
@@ -178,16 +210,18 @@ const ProductForm = (props) => {
 };
 
 const Container = styled.section`
+  padding-top: 1em;
   @media only screen and (min-width: 800px) {
     position: absolute;
+    padding: 0;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
-    width: 800px;
+    width: 820px;
+    height: 500px;
     justify-content: center;
     border: 1px solid ${Color.gray};
-    padding: 1em;
     & > section {
       width: 400px;
       height: 100%;
@@ -211,7 +245,7 @@ const ImageListWrap = styled.section`
   }
   @media only screen and (min-width: 800px) {
     grid-template-rows: repeat(4, 6em);
-    border-right: 1px solid ${Color.gray};
+    margin: 1em;
   }
 `;
 
@@ -246,8 +280,9 @@ const ContentWrap = styled.section`
   padding-bottom: 75px;
   position: relative;
   @media only screen and (min-width: 800px) {
-    padding: 0 0 0 1em;
+    padding: 1em;
     height: 100%;
+    border-left: 1px solid ${Color.gray};
   }
 `;
 
@@ -273,8 +308,9 @@ const ButtonWrap = styled.div`
   padding: 1em;
   background-color: ${Color.white};
   @media only screen and (min-width: 800px) {
-    position: static;
-    padding: 1em 0 0 0;
+    border-top: 1px solid ${Color.gray};
+    position: absolute;
+    padding: 1em;
   }
 `;
 

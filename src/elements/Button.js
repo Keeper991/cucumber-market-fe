@@ -57,9 +57,12 @@ Button.defaultProps = {
 };
 
 const CircleBtn = styled.button`
+  --size: ${({width}) => width};
   display: flex;
   justify-content: center;
   align-items: center;
+  width: var(--size);
+  height: var(--size);
   padding: ${(props) => props.padding};
   margin: ${(props) => props.margin};
   color: ${(props) => props.color};
