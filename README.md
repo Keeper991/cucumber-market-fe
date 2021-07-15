@@ -2,33 +2,41 @@
 
 > 중고거래는 역시, 오이마켓!! 🥒
 
-## 📍 Introduction
+## Introduction
+당근마켓을 모티브로한 미니 팀 프로젝트
 
-## 📍 Period
+## Period
 
 21.07.8 ~ 21.7.5
 
-## 📍 Members
+## Members
 
 - Frontend(React) : 박세현, 우지음
 - Backend(Node.js) : 변정섭, 문진영, 이은택
 
-## 📍 Front Techs
+## Front Techs
 
 - React
 - React Hooks
-- React-router-dom
-- HTML5, CSS3
+- React redux
+- redux-actions
 - immer
--
+- React-router-dom
+- connected-react-router
+- Styled-Components
+- socket.io-client
+- firebase
+- redux-thunk
+- redux-logger
 
-## 📍 Coummunication Tools
+## Coummunication Tools
 
 - slack
 - Notion
+- gather
 - Git + GitHub
 
-## 📍 Function
+## Function
 
 1. 로그인, 로그아웃, 회원가입
 
