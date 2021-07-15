@@ -1,6 +1,6 @@
 
 # 오이마켓 🥒
-  <img width="700" alt="스크린샷 2021-07-16 오전 4 51 15" src="https://user-images.githubusercontent.com/77391482/125853527-e593a5e0-9ba7-41e2-8ef1-e98f8da02064.png">
+  <img width="315" alt="스크린샷 2021-07-16 오전 4 51 15" src="https://user-images.githubusercontent.com/77391482/125853527-e593a5e0-9ba7-41e2-8ef1-e98f8da02064.png">
 중고거래는 역시, 오이마켓!! 🥒
 
 ## Introduction
@@ -44,13 +44,13 @@
 - JWT와 LocalStorage를 사용하여 로그인 페이지 구현
 
 2. 메인 피드 페이지
-
 - 메인페이지 최신순으로 정렬
-  <img width="700" alt="스크린샷 2021-07-16 오전 4 49 28" src="https://user-images.githubusercontent.com/77391482/125853999-121c4c50-7dad-4302-8f36-565c4ac3cc0d.png">
+<img width="700" alt="스크린샷 2021-07-16 오전 4 49 28" src="https://user-images.githubusercontent.com/77391482/125853999-121c4c50-7dad-4302-8f36-565c4ac3cc0d.png">
+
 3. 게시글 업로드
-  <img width="700" alt="스크린샷 2021-07-16 오전 4 50 43" src="https://user-images.githubusercontent.com/77391482/125853687-5fc95c76-a0e8-4bb6-93e4-bdac37f02fee.png">
+<img width="700" alt="스크린샷 2021-07-16 오전 4 50 43" src="https://user-images.githubusercontent.com/77391482/125853687-5fc95c76-a0e8-4bb6-93e4-bdac37f02fee.png">
 - 카데고리 분류 기능!
-   <img width="700" alt="스크린샷 2021-07-16 오전 4 50 30" src="https://user-images.githubusercontent.com/77391482/125854062-cc66b3bd-e45a-4608-98b0-7798793c3e48.png">
+<img width="700" alt="스크린샷 2021-07-16 오전 4 50 30" src="https://user-images.githubusercontent.com/77391482/125854062-cc66b3bd-e45a-4608-98b0-7798793c3e48.png">
 
 
 - 이미지 10장 업로드
@@ -59,7 +59,7 @@
 4. 게시글 상세 페이지
 
 - 좋아요 토글 버튼
-  좋아요
+
 5. 게시글 삭제
 
 - 모달찰 및 삭제기능 구현
