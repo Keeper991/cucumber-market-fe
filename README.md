@@ -25,8 +25,6 @@
 - React-router-dom
 - Connected-react-router
 - Styled-Components
-- Socket.io-client
-- Firebase
 - Redux-Thunk
 - Redux-Logger
 - Axios
