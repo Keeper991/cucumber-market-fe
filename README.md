@@ -62,6 +62,6 @@
   - 내가 찜한 물건 목록
 
 ## Preview
-https://user-images.githubusercontent.com/77391482/125859243-1edb266c-d865-4cc0-88e2-88ee1f619124.mov
+![ezgif com-gif-maker](https://user-images.githubusercontent.com/77391482/125859638-35587790-46ed-422c-9051-12784268650e.gif)
 
 
