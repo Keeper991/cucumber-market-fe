@@ -6,7 +6,7 @@ import { actionCreators as productActions } from "../redux/modules/product";
 import { history } from "../redux/configStore";
 import InfinityScroll from "../shared/InfinityScroll";
 import Color from "../shared/Color";
-import { Text, Image } from "../elements";
+import { Text, Image, Button } from "../elements";
 import { getUserInfoFromLS } from "../shared/Permit";
 import Spinner from "../shared/Spinner";
 

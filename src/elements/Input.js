@@ -30,10 +30,12 @@ const Input = ({
   } else {
     return <ElInput {...attrs} />;
   }
+
 };
 
 Input.defaultProps = {
   children: null,
+  Rounding: false,
   value: "",
   multiLine: false,
   placeholder: "",
