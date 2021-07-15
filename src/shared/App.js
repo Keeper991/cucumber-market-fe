@@ -1,36 +1,41 @@
-import React from 'react';
-
-import { Route } from "react-router-dom";
 import { ConnectedRouter } from "connected-react-router";
-import { history } from '../redux/configStore';
-
-import Button from "../elements/Button";
-import Header from '../components/Header';
-
+import { Route, Switch } from "react-router-dom";
+import ProductForm from "../pages/ProductForm";
+import { history } from "../redux/configStore";
+import styled from "styled-components";
+import ProductDetail from "../pages/ProductDetail";
+import Header from "../components/Header";
 import ProductList from "../pages/ProductList";
 import MyPage from "../pages/MyPage";
 import Login from "../pages/Login";
-import Register from '../pages/Register';
-import ChatList from '../pages/ChatList';
-import ChattingRoom from '../pages/ChattingRoom';
+import Register from "../pages/Register";
+import NotFound from "../shared/NotFound";
 
 const App = () => {
-
   return (
     <div className="App">
-
       <ConnectedRouter history={history}>
         <Header />
-        <Route path="/" exact component={ProductList} />
-        <Route path="/me" exact component={MyPage} />
-        <Route path="/login" exact component={Login} />
-        <Route path="/register" exact component={Register} />
-        <Route path="/chatlist" exact component={ChatList} />
-        <Route path="/chattingroom" exact component={ChattingRoom} />
+        <Content>
+          <Switch>
+            <Route path="/" component={ProductList} exact />
+            <Route path="/login" component={Login} />
+            <Route path="/me" component={MyPage} />
+            <Route path="/register" component={Register} />
+            <Route path="/create" component={ProductForm} />
+            <Route path="/detail/:id" component={ProductDetail} />
+            <Route path="/edit/:id" component={ProductForm} />
+            <Route component={NotFound} />
+          </Switch>
+        </Content>
       </ConnectedRouter>
-
     </div>
   );
 };
+
+const Content = styled.section`
+  padding: 0 1em;
+  width: 100%;
+`;
 
 export default App;

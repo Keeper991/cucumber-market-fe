@@ -3,8 +3,17 @@ import styled from "styled-components";
 import Color from "../shared/Color";
 
 const Button = (props) => {
-  const { is_float, bgColor, color, margin, padding, width, circle, children, _onClick } =
-    props;
+  const {
+    is_float,
+    bgColor,
+    color,
+    margin,
+    padding,
+    width,
+    circle,
+    children,
+    _onClick,
+  } = props;
 
   const styles = {
     bgColor: bgColor,
@@ -38,7 +47,7 @@ const Button = (props) => {
 };
 
 Button.defaultProps = {
-  _onClick: () => { },
+  _onClick: () => {},
   circle: false,
   margin: "0px",
   width: "100px",
@@ -48,15 +57,19 @@ Button.defaultProps = {
 };
 
 const CircleBtn = styled.button`
+  --size: ${({width}) => width};
   display: flex;
   justify-content: center;
   align-items: center;
+  width: var(--size);
+  height: var(--size);
   padding: ${(props) => props.padding};
   margin: ${(props) => props.margin};
   color: ${(props) => props.color};
   border: none;
   background-color: ${({ bgColor }) => bgColor};
   border-radius: 50%;
+  cursor: pointer;
 `;
 
 const BasicBtn = styled.button`

@@ -28,16 +28,16 @@ const Image = (props) => {
 };
 
 Image.defaultProps = {
-  _onClick: () => { },
-  shape: "circle",
-  src: "https://mean0images.s3.ap-northeast-2.amazonaws.com/4.jpeg",
+  _onClick: () => {},
+  shape: "",
+  src: "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=640&q=80",
   width: "6em",
   height: "6em",
+  ratio: "4 * 3",
 };
 
-
 const ImageCircle = styled.div`
-  --size: ${(props) => props.size}px;
+  --size: ${(props) => props.size};
   width: var(--size);
   height: var(--size);
   border-radius: var(--size);
@@ -47,14 +47,13 @@ const ImageCircle = styled.div`
   margin: ${(props) => props.margin};
 `;
 
-
 const AspectOutter = styled.div`
   width: ${(props) => props.width};
   margin: ${(props) => props.margin};
 `;
 
 const AspectInner = styled.div`
-  padding-top: 75%;
+  ${({ width, ratio }) => `padding-top: calc(${width} / ${ratio});`}
   background-image: url(${(props) => props.src});
   background-size: cover;
   background-position: center;

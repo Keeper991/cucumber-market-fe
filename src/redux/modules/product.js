@@ -1,127 +1,319 @@
 import { createAction, handleActions } from "redux-actions";
-import produce from "immer";
-import moment from "moment";
-import axios from "axios";
+import { produce } from "immer";
+import { productAPI } from "../../shared/API";
+import { storage } from "../../shared/firebase";
+import { actionCreators as imageActions } from "./image";
+import { getIdFromToken, getUserInfoFromLS } from "../../shared/Permit";
 
-// Action
-const PUT_PRODUCT = "PUT_PRODUCT"; // 서버에 가져온 리스트를 리덕스에 넣어주는 액션
-const ADD_PRODUCT = "ADD_PRODUCT"; // product를 리덕스에 추가해주는 액션
-const LIKE_TOGGLE = "LIKE_TOGGLE"; // 토글 버튼 누르면 product_id를 user_id에 저장
+const ADD = "product/ADD";
+const EDIT = "product/EDIT";
+const SET = "product/GET";
+const LOADING = "product/LOADING";
+const REMOVE = "product/REMOVE";
+const SET_IS_SEARCH = "product/SET_IS_SEARCH";
+const SET_SEARCH = "product/SET_SEARCH";
+// const PUT_PRODUCT = "PUT_PRODUCT"; // 서버에 가져온 리스트를 리덕스에 넣어주는 액션
 
 // ActionCreator
-const putProduct = createAction(PUT_PRODUCT, (product_list) => ({ product_list }));
-const addProduct = createAction(ADD_PRODUCT, (product) => ({ product }));
-const likeToggle = createAction(LIKE_TOGGLE, (id, is_like) => ({ id, is_like }));
 
-// initailState
-const initialState = {
-  list: [],
-}
+const addProduct = createAction(ADD, (product) => ({ product }));
+const setProductList = createAction(SET, (list, total) => ({ list, total }));
+const editProduct = createAction(EDIT, (product) => ({ product }));
+const removeProduct = createAction(REMOVE, (id) => ({ id }));
+const setLoading = createAction(LOADING, (isLoading) => ({
+  isLoading,
+}));
+const setSearch = createAction(SET_IS_SEARCH, (isSearch) => ({ isSearch }));
+const setSearchList = createAction(SET_SEARCH, (list, total) => ({
+  list,
+  total,
+}));
 
+const addProductAPI =
+  (product) =>
+  async (dispatch, getState, { history }) => {
+    dispatch(setLoading(true));
+    const userId = getIdFromToken();
+    const insertedAt = Date.now();
+    const images = product.images;
+    const imageList = await (async () => {
+      const imageURLs = await images.reduce(async (acc, image, idx) => {
+        const urlList = await acc.then();
+        const url = await storage
+          .ref(`images/${userId}/${insertedAt}_${idx}`)
+          .putString(image, "data_url")
+          .then((snapshot) => snapshot.ref.getDownloadURL());
+        urlList.push(url);
+        return Promise.resolve(urlList);
+      }, Promise.resolve([]));
+      return imageURLs;
+    })();
 
-// 메인페이지에 상품 불러오기 (서버에서 프로덕트 데이터 가져오는 함수)
-const getProductAPI = () => {
-  return function (dispatch, getState, { history }) {
-    // 가져온 데이터를 리덕스에 넣기위한 정보로 바꿔줌
-    axios
-      .get("http://localhost:3005/product").then((datalist) => {
-        const data_list = datalist.data;
-        dispatch(putProduct(data_list)) // product_list를 리덕스에 넣어줌
-      })
-      .catch((error) => {
-        console.log('getProductAPI 오류', error);
+    product.images = imageList;
+    product.insertedAt = insertedAt;
+    product.imgUploadCnt = imageList.length;
+
+    try {
+      const res = await productAPI.add(product);
+      console.log(res);
+      const id = res.data.latest;
+      product._id = id;
+      dispatch(addProduct(product));
+      dispatch(imageActions.setImage([]));
+      alert("게시글이 생성되었습니다.");
+      history.replace(`/detail/${id}`);
+    } catch (e) {
+      console.log(e);
+      alert("게시글을 생성하지 못했습니다.");
+      dispatch(setLoading(false));
+      history.replace("/");
+    }
+  };
+
+const getProductListAPI = () => {
+  return async function (dispatch, getState, { history }) {
+    const { nextPage, totalProductCount, productCntInOnePage } =
+      getState().product;
+
+    if (
+      nextPage !== 1 &&
+      totalProductCount - (nextPage - 1) * productCntInOnePage < 1
+    ) {
+      return;
+    }
+
+    dispatch(setLoading(true));
+    try {
+      const res = await productAPI.getList(nextPage);
+      const { contents: productList, totalLength } = res.data;
+      dispatch(setProductList(productList, totalLength)); // product_list를 리덕스에 넣어줌
+    } catch (e) {
+      console.log(e);
+      alert("게시글을 불러오는데 실패했습니다.");
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+const getProductOneAPI =
+  (id) =>
+  async (dispatch, getState, { history }) => {
+    dispatch(setLoading(true));
+    try {
+      const res = await productAPI.getOne(id);
+      const data = res.data.getProduct;
+      dispatch(addProduct(data));
+    } catch (e) {
+      console.log(e);
+      alert("게시글을 찾을 수 없습니다.");
+      dispatch(setLoading(false));
+      history.replace("/");
+    }
+  };
+
+const editProductAPI =
+  (product) =>
+  async (dispatch, getState, { history }) => {
+    dispatch(setLoading(true));
+    const userId = getIdFromToken();
+    const images = product.images;
+    const imageList = await (async () => {
+      const imageURLs = await images.reduce(async (acc, image, idx) => {
+        const urlList = await acc.then();
+        if (!image.startsWith("https://")) {
+          const url = await storage
+            .ref(
+              `images/${userId}/${product.insertedAt}_${product.imgUploadCnt++}`
+            )
+            .putString(image, "data_url")
+            .then((snapshot) => snapshot.ref.getDownloadURL());
+          urlList.push(url);
+        } else {
+          urlList.push(image);
+        }
+        return Promise.resolve(urlList);
+      }, Promise.resolve([]));
+      return imageURLs;
+    })();
+
+    dispatch(imageActions.setImage([]));
+
+    product.images = imageList;
+
+    try {
+      const res = await productAPI.edit(product);
+      console.log(res);
+      dispatch(editProduct(product));
+      const { delList } = getState().image;
+      delList.map((dl) => {
+        const imageId = dl.split("_")[1].split("?")[0];
+        storage
+          .ref(`images/${product.user.userId}/${product.insertedAt}_${imageId}`)
+          .delete();
       });
-  }
-}
+      alert("수정되었습니다!");
+      history.push(`/detail/${product._id}`);
+    } catch (e) {
+      console.log(e);
+      alert("수정에 실패했습니다.");
+      dispatch(setLoading(false));
+      history.replace(`/`);
+    }
+  };
 
-// 마이페이지에 내가 올린 상품 불러오기 (서버에서 프로덕트 데이터 가져오는 함수)
-const getSellProductAPI = (user_id) => {
-  return function (dispatch, getState, { history }) {
-    // 가져온 데이터를 리덕스에 넣기위한 정보로 바꿔줌
-    axios
-      .get("http://localhost:3005/product", { params: { "user_id": String(user_id) } }).then((datalist) => {
-        const data_list = datalist.data;
-        console.log(data_list);
-        dispatch(putProduct(data_list)) // product_list를 리덕스에 넣어줌
-      })
-      .catch((error) => {
-        console.log('getProductAPI 오류', error);
-      });
-  }
-}
-// 서버에서 is_like 정보 가져오는 함수
-const getLikeToggleAPI = () => {
-  return function (dispatch, getState, { history }) {
-    const p_index = getState().product.list.findIndex((p) => (p.id))
-    const _is_like = getState().product.list[p_index].is_like
+const removeProductAPI =
+  (id) =>
+  async (dispatch, getState, { history }) => {
+    dispatch(setLoading(true));
+    try {
+      await productAPI.remove(id);
+      dispatch(removeProduct(id));
+      alert("게시물이 삭제되었습니다.");
+      history.replace("/");
+    } catch (e) {
+      console.log(e);
+      alert("게시물 삭제에 실패했습니다.");
+      history.replace("/");
+    }
+  };
 
-    if (_is_like) {
-      axios.patch("http://localhost:3003/product/1", { is_like: false }).then((datalist) => {
-        const data_list = datalist.data;
-        dispatch(likeToggle(data_list.id, data_list.is_like))
-        // user에 product_id 저장
-      })
-    } else {
-      axios.patch("http://localhost:3003/product/1", { is_like: true }).then((datalist) => {
-        const data_list = datalist.data;
-        dispatch(likeToggle(data_list.id, data_list.is_like))
-        // user에 product_id 삭제
-      })
+const searchProductAPI = (option, keyword) => async (dispatch, getState) => {
+  if (!keyword) {
+    dispatch(setSearch(false));
+  } else {
+    dispatch(setSearch(true));
+    const { searchNextPage, totalSearchCount, productCntInOnePage } =
+      getState().product;
+
+    if (
+      searchNextPage !== 1 &&
+      totalSearchCount - (searchNextPage - 1) * productCntInOnePage < 1
+    ) {
+      return;
+    }
+    dispatch(setLoading(true));
+
+    const data = {
+      pageNum: searchNextPage,
+      option,
+      keyword,
+    };
+
+    try {
+      const res = await productAPI.search(data);
+      dispatch(setSearchList(res.data.contents, res.data.totalLength));
+    } catch (e) {
+      console.log(e);
+      alert("게시글을 불러오는데 실패했습니다.");
+      dispatch(setLoading(false));
+      dispatch(setSearch(false));
     }
   }
-}
+};
 
-// // initailState
-// const initialState = {
-//   list: [
-//     {
-//       id: 1,
-//       image_url: "https://mean0images.s3.ap-northeast-2.amazonaws.com/4.jpeg",
-//       productName: "덩크 플립 240 판매합니다",
-//       productPrice: "100,000",
-//       insertedAt: "YYYY-MM-DD hh:mm:ss",
-//       category: "패션",
-//       is_like: false
-//     }
-//   ]
-// }
+//-------------------------------------
+// Product
+//-------------------------------------
+// {
+//   user: {
+//     userId: "",
+//     username: "",
+//     userProfile: "",
+//   },
+//
+//   id: "",
+//   title: "",
+//   description: "",
+//   productName: "",
+//   price: "",
+//   productCategory: "",
+//   images: [],
+//   imgUploadCnt: 0,
+//   insertedAt: "",
+//   isLike: false,
+// },
 
+// like = postid - userid, isLike
+// mypage = [productId]
 
-// Reducer
-export default handleActions(
+const initialState = {
+  list: [],
+  isLoading: false,
+  isSearch: false,
+  nextPage: 1,
+  totalProductCount: 0,
+  searchList: [],
+  searchNextPage: 1,
+  totalSearchCount: 0,
+  productCntInOnePage: 10,
+};
+
+const reducer = handleActions(
   {
-    [PUT_PRODUCT]: (state, action) => produce(state, (draft) => {
-      draft.list.push(...action.payload.product_list);
-      // 배열 안에 데이터 넣어준다.
-      draft.list = draft.list.reduce((acc, cur) => {
-        if (acc.findIndex((a) => a.id === cur.id) === -1) {
-          return [...acc, cur];
-        } else {
-          acc[acc.findIndex((a) => a.id === cur.id)] = cur;
-          return acc;
-        }
-      }, []);
-    }),
+    [ADD]: (state, action) =>
+      produce(state, (draft) => {
+        draft.list.unshift(action.payload.product);
+        draft.isLoading = false;
+      }),
 
-    [ADD_PRODUCT]: (state, action) => produce(state, (draft) => {
-      draft.list.unshift(action.payload.product);
-    }),
+    [SET]: (state, action) =>
+      produce(state, (draft) => {
+        if (draft.list.length < 2) draft.list = action.payload.list;
+        else draft.list.push(...action.payload.list);
+        ++draft.nextPage;
+        draft.totalProductCount = action.payload.total;
+        draft.isLoading = false;
+      }),
 
-    [LIKE_TOGGLE]: (state, action) => produce(state, (draft) => {
-      const index = draft.list.findIndex((p) => (p.id), action.payload.id)
-      draft.list[index].is_like = action.payload.is_like;
-    })
-  }, initialState
+    [EDIT]: (state, action) =>
+      produce(state, (draft) => {
+        const idx = draft.list.findIndex(
+          (product) => product._id === action.payload.product._id
+        );
+        draft.list[idx] = action.payload.product;
+        draft.isLoading = false;
+      }),
+    [REMOVE]: (state, action) =>
+      produce(state, (draft) => {
+        const idx = draft.list.findIndex(
+          (product) => product._id === action.payload.id
+        );
+        draft.list.splice(idx, 1);
+      }),
+
+    [LOADING]: (state, action) =>
+      produce(state, (draft) => {
+        draft.isLoading = action.payload.isLoading;
+      }),
+
+    [SET_IS_SEARCH]: (state, action) =>
+      produce(state, (draft) => {
+        draft.isSearch = action.payload.isSearch;
+        draft.searchList = [];
+        draft.searchNextPage = 1;
+        draft.totalSearchCount = 0;
+      }),
+
+    [SET_SEARCH]: (state, action) =>
+      produce(state, (draft) => {
+        if (draft.searchList.length < 2) draft.searchList = action.payload.list;
+        else draft.searchList.push(...action.payload.list);
+        ++draft.searchNextPage;
+        draft.totaSearchCount = action.payload.total;
+        draft.isLoading = false;
+      }),
+  },
+  initialState
 );
 
-
-// ActionCreator export
-const actionCreators = {
-  putProduct,
+export const actionCreators = {
   addProduct,
-  likeToggle,
-  getProductAPI,
-  getSellProductAPI,
-  getLikeToggleAPI,
-}
-export { actionCreators };
+  getProductOneAPI,
+  addProductAPI,
+  editProductAPI,
+  getProductListAPI,
+  removeProductAPI,
+  searchProductAPI,
+  setSearch,
+};
+export default reducer;
