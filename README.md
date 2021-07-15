@@ -1,5 +1,6 @@
-# 오이마켓 🥒
 
+# 오이마켓 🥒
+<img width="295" alt="스크린샷 2021-07-16 오전 4 51 15" src="https://user-images.githubusercontent.com/77391482/125853527-e593a5e0-9ba7-41e2-8ef1-e98f8da02064.png">
 > 중고거래는 역시, 오이마켓!! 🥒
 
 ## Introduction
